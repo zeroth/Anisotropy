@@ -1,5 +1,18 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>OldApplicationContainer.qml</file>
+        <file>Controller.js</file>
+        <file>OldImageVisualizer.qml</file>
+        <file>ControlSlider.qml</file>
+        <file>HistogramView.qml</file>
+        <file>ThresholdSlider.qml</file>
+        <file>AnisotropyView.qml</file>
+        <file>OldImageScrollArea.qml</file>
+        <file>SplitImageView.qml</file>
+        <file>ImageScrollArea.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>reset_icon.png</file>
     </qresource>
 </RCC>
