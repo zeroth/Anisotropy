@@ -1,17 +1,11 @@
 #include "BioImageManager.h"
-#include <QDebug>
 #include "Anisotropy.h"
+#include <QDir>
+#include <QDataStream>
+#include <QDebug>
 
-void BioImageManager::setImage(const QString& id, zeroth::BioImage* img)
-{
-    if(m_img.contains(id)) {
-        zeroth::BioImage* _oldImg = m_img.take(id);
-        delete _oldImg;
-    }
-
-    m_img[id] = img;
-    emit imageLoaded(id);
-}
+#define RIMGID "aniR"
+#define TIMGID "aniT"
 
 void BioImageManager::createImage(const QString& path)
 {
@@ -20,17 +14,8 @@ void BioImageManager::createImage(const QString& path)
     setImage("a", i);
 }
 
-QStringList BioImageManager::availableColorMaps()
-{
-    return cTable->availableColorMaps();
-}
 
-QVector<QRgb> BioImageManager::colorTable(const QString &name)
-{
-    return cTable->colorTable(name);
-}
-
-void BioImageManager::saveImage(const QString &path)
+void BioImageManager::saveImage(const QString& id,const QString &path)
 {
     QString file;
     QUrl url(path);
@@ -40,39 +25,65 @@ void BioImageManager::saveImage(const QString &path)
         file = path;
     }
 
-    m_img["a"]->save(file.toStdString());
+    m_img[id]->save(file.toStdString());
 }
 
-bool BioImageManager::hasImage()
+void BioImageManager::setImage(const QString& id, zeroth::BioImage* img)
 {
-    return (!m_img.isEmpty());
+    if(m_img.contains(id)) {
+        zeroth::BioImage* _oldImg = m_img.take(id);
+        delete _oldImg;
+    }
+
+    m_img[id] = img;
+    //    emit imageLoaded(id);
 }
 
-double BioImageManager::imgMin()
+void BioImageManager::setImage(const QString &id, const QString &path)
 {
-    return m_img["a"]->histogram()->begin;
+    zeroth::BioImage *i = new zeroth::BioImage();
+    i->setSource(path);
+    setImage(id, i);
 }
 
-double BioImageManager::imgMax()
+zeroth::BioImage *BioImageManager::image(const QString& id)
 {
-    return m_img["a"]->histogram()->end;
+    return m_img[id];
 }
 
-QList<qreal> BioImageManager::hist()
+float BioImageManager::intensity(const QString& id, qreal x, qreal y)
+{
+    if(m_img.isEmpty()) return 0;
+
+    return m_img[id]->intensityAt(x, y);
+}
+
+double BioImageManager::imgMin(const QString& id)
+{
+    return m_img[id]->min();
+}
+
+double BioImageManager::imgMax(const QString& id)
+{
+    return m_img[id]->max();
+}
+
+QList<qreal> BioImageManager::hist(const QString& id)
 {
 
-    return m_img["a"]->histogram()->hist;
+    return m_img[id]->histogram()->hist;
 }
 
-QList<int> BioImageManager::bins()
+QList<int> BioImageManager::bins(const QString& id)
 {
-    return m_img["a"]->histogram()->bins;
+    return m_img[id]->histogram()->bins;
 }
 
-int BioImageManager::range()
+int BioImageManager::range(const QString& id)
 {
-    return m_img["a"]->histogram()->range;
+    return m_img[id]->histogram()->range;
 }
+
 
 void BioImageManager::exeAnisotropy(const QString &parallelBackGround, const QString &perpendicularBackground,
                                     const QString &parallel, const QString &perpendicular, double subtractVal)
@@ -85,22 +96,91 @@ void BioImageManager::exeAnisotropy(const QString &parallelBackGround, const QSt
     ani->setSubtractVal(subtractVal);
     ani->apply();
 
+    this->setImage(RIMGID, ani->getImageR());
+    this->setImage(TIMGID, ani->getImageT());
+
+    emit anisotropyReady(RIMGID, TIMGID);
 }
 
-
-zeroth::BioImage *BioImageManager::image()
+void BioImageManager::saveAnisotropy(const QUrl &path, const QString &idR, const QString &idT)
 {
-    return m_img["a"];
+
+    QDir dir(path.toLocalFile());
+
+    QString metaFileName = QString("metadata.ani");
+    QString rFileName = QString("%1_R.tif").arg(dir.dirName());
+    QString tFileName = QString("%1_T.tif").arg(dir.dirName());
+
+    QString metaFilePath = QString("%1%2%3").arg(path.toLocalFile()).arg(QDir::separator()).arg(metaFileName);
+    QString rFilePath = QString("%1%2%3").arg(path.toLocalFile()).arg(QDir::separator()).arg(rFileName);
+    QString tFilePath = QString("%1%2%3").arg(path.toLocalFile()).arg(QDir::separator()).arg(tFileName);
+
+    // save R & T
+    m_img[idR]->save(rFilePath.toStdString());
+    m_img[idT]->save(tFilePath.toStdString());
+
+    // create metaFile
+    QFile metaFile(metaFilePath);
+    if(!metaFile.open(QIODevice::WriteOnly)) {
+        // TODO: add some warnning
+        return;
+    }
+    QDataStream out(&metaFile);
+    out << metaFileName;
+    out << rFileName;
+    out << tFileName;
+
+    metaFile.close();
 }
 
-float BioImageManager::intensity(qreal x, qreal y)
+void BioImageManager::openAnisotropy(const QUrl &path)
 {
-    if(m_img.isEmpty()) return 0;
+    QString metaFilePath = path.toLocalFile();
+    QString metaFileName;
+    QString rFileName;
+    QString tFileName;
 
-    return m_img["a"]->intensityAt(x, y);
+    // open  metaFile
+    QFile metaFile(metaFilePath);
+    if(!metaFile.open(QIODevice::ReadOnly)) {
+        // TODO: add some warnning
+        return;
+    }
+    QDataStream in(&metaFile);
+    in >> metaFileName;
+    in >> rFileName;
+    in >> tFileName;
+    metaFile.close();
+
+    QFileInfo info(metaFilePath);
+    QString basePath = info.dir().absolutePath();
+    if(metaFileName != info.fileName()){
+        qWarning() << "Looks like the metafile name has changed";
+    }
+
+//    QString metaFilePath = QString("%1%2%3").arg(path.toLocalFile()).arg(QDir::separator()).arg(metaFileName);
+    QString rFilePath = QString("%1%2%3").arg(basePath).arg(QDir::separator()).arg(rFileName);
+    QString tFilePath = QString("%1%2%3").arg(basePath).arg(QDir::separator()).arg(tFileName);
+
+    this->setImage(RIMGID, rFilePath);
+    this->setImage(TIMGID, tFilePath);
+    emit anisotropyReady(RIMGID, TIMGID);
 }
 
+QStringList BioImageManager::availableColorMaps()
+{
+    return cTable->availableColorMaps();
+}
 
+QVector<QRgb> BioImageManager::colorTable(const QString &name)
+{
+    return cTable->colorTable(name);
+}
+
+bool BioImageManager::hasImage()
+{
+    return (!m_img.isEmpty());
+}
 
 BioImageManager::BioImageManager(QObject *parent) : QObject(parent)
 {
@@ -116,7 +196,7 @@ BioImageManager::BioImageManager(QObject *parent) : QObject(parent)
     jetMap[{1}] = rgb(128, 0, 0);
     cTable->registerMap("Jet", jetMap);
 
-    // fire fromimage j
+    // fire from image j
     std::map<FloatKey, rgb> fireMap;
 
     //    fireMap[{0.        }]=rgb(0,  0,0    );

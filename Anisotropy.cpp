@@ -264,6 +264,7 @@ void Anisotropy::apply()
     d->imgR->setHeight(height);
     d->imgR->setDepth(1);
     d->imgR->setBitFormat(3);
+    d->imgR->update();
 
     d->imgT = new zeroth::BioImage;
     d->imgT->setData(T);
@@ -272,6 +273,7 @@ void Anisotropy::apply()
     d->imgT->setHeight(height);
     d->imgT->setDepth(1);
     d->imgT->setBitFormat(3);
+    d->imgT->update();
 }
 
 zeroth::BioImage *Anisotropy::getImageR()

@@ -22,28 +22,35 @@ public:
         return test;
     }
 
-    Q_INVOKABLE void setImage(const QString& id, zeroth::BioImage* img);
-    Q_INVOKABLE zeroth::BioImage* image();
-    Q_INVOKABLE float intensity(qreal x, qreal y);
-
     Q_INVOKABLE void createImage(const QString &path);
-    Q_INVOKABLE QStringList availableColorMaps();
-    QVector<QRgb> colorTable(const QString& name);
-    Q_INVOKABLE void saveImage(const QString& path);
-    Q_INVOKABLE bool hasImage();
+    Q_INVOKABLE void saveImage(const QString& id, const QString& path);
 
-    Q_INVOKABLE double imgMin();
-    Q_INVOKABLE double imgMax();
-    Q_INVOKABLE QList<qreal> hist();
-    Q_INVOKABLE QList<int> bins();
-    Q_INVOKABLE int range();
+    Q_INVOKABLE void setImage(const QString& id, zeroth::BioImage* img);
+    void setImage(const QString& id, const QString& path);
+
+    Q_INVOKABLE zeroth::BioImage* image(const QString& id);
+    Q_INVOKABLE float intensity(const QString& id, qreal x, qreal y);
+    Q_INVOKABLE double imgMin(const QString& id);
+    Q_INVOKABLE double imgMax(const QString& id);
+    Q_INVOKABLE QList<qreal> hist(const QString& id);
+    Q_INVOKABLE QList<int> bins(const QString& id);
+    Q_INVOKABLE int range(const QString& id);
 
     Q_INVOKABLE void exeAnisotropy(const QString& parallelBackGround, const QString& perpendicularBackground,
                                    const QString& parallel,const QString& perpendicular, double subtractVal);
 
+    Q_INVOKABLE void saveAnisotropy(const QUrl& path, const QString& idR, const QString& idT);
+    Q_INVOKABLE void openAnisotropy(const QUrl& path);
+
+    Q_INVOKABLE QStringList availableColorMaps();
+    QVector<QRgb> colorTable(const QString& name);
+    Q_INVOKABLE bool hasImage();
+
+
 signals:
     void imageLoaded(const QString& id);
     void imageUpdated();
+    void anisotropyReady(const QString& rId, const QString& tId);
 
 private:
     BioImageManager(QObject *parent = nullptr);

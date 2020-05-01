@@ -20,11 +20,22 @@ Item {
         width: image.width
         height: image.height
         color: "transparent"
-        smooth: true
-        antialiasing: true
+//        smooth: true
+//        antialiasing: true
         MouseArea {
             anchors.fill: parent
             drag.target: parent
+            hoverEnabled: true
+            onPositionChanged: {
+                let x = Math.round(mouse.x);
+                let y = Math.round(mouse.y);
+                let val = Manager.intensity(imageSrc, x, y);
+//                let posInfo = ` X: ${x}, Y: ${y},  Value: ${val}`;
+                localtionInfo.xPos = x;
+                localtionInfo.yPos = y;
+                localtionInfo.intensity = val;
+
+            }
         }
 
         scale: zoomScale
@@ -32,7 +43,18 @@ Item {
         Component.onCompleted: updateImageLocation()
     }
 
+    onWidthChanged: {
+        updateImageLocation()
+    }
+    onHeightChanged: {
+        updateImageLocation()
+    }
+
     onImageSrcChanged: {
+        thresholdSlider.from = Manager.imgMin(imageSrc)
+        thresholdSlider.first.value = Manager.imgMin(imageSrc)
+        thresholdSlider.to = Manager.imgMax(imageSrc)
+        thresholdSlider.second.value = Manager.imgMax(imageSrc)
         updateImage();
         updateImageLocation();
     }
@@ -51,8 +73,21 @@ Item {
         x: controlAlignment === Qt.AlignLeft ? 50 : (parent.width  - childrenRect.width) -50
         y: parent.height - 60
         spacing: 10
-        opacity: 0.3
+        opacity: 1
 
+        Rectangle {
+            id:localtionInfo
+            implicitWidth: 100
+            implicitHeight: 4
+            property real xPos: 0
+            property real yPos: 0
+            property real intensity: 0
+            color: "transparent"
+            Text {
+                anchors.fill: parent
+                text: `X : ${localtionInfo.xPos}, Y: ${localtionInfo.yPos}, \nValue: ${localtionInfo.intensity.toFixed(3)}`
+            }
+        }
 
         ControlSlider {
             id: zoomSlider
@@ -99,7 +134,7 @@ Item {
 
         }
 
-        MouseArea {
+        /*MouseArea {
             hoverEnabled: true
             anchors.fill: parent
             onEntered: {
@@ -108,7 +143,7 @@ Item {
             onExited: {
                 parent.opacity = 0.3
             }
-        }
+        }*/
 
     }
 

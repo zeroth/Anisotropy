@@ -12,6 +12,7 @@ HEADERS += \
     BioImageManager.h \
     ColorTable.h \
     Common.h \
+    DataModel.h \
     TiffReader.h \
     TiffWriter.h
 
@@ -23,6 +24,7 @@ SOURCES += \
     BioImageManager.cpp \
     ColorTable.cpp \
     Common.cpp \
+    DataModel.cpp \
     TiffReader.cpp \
     TiffWriter.cpp \
     main.cpp

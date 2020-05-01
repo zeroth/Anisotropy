@@ -3,10 +3,13 @@ import QtQuick.Controls 2.14
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.12
 import QtQuick.Controls.Styles 1.4
+import QtQuick.Dialogs 1.2
 
 Rectangle {
     id: anisotropyView
     anchors.fill: parent
+
+    // main ToolBar
     ToolBar {
         id: toolBar
         anchors.top: parent.top
@@ -22,33 +25,35 @@ Rectangle {
                 implicitHeight: parent.height
                 text: "New"
                 onClicked: {
-                    console.log("New clicked")
+                    newAnisotropyDlg.open()
                 }
             }
+
             ToolButton {
                 implicitHeight: parent.height
                 text: "Open"
                 onClicked: {
-                    console.log("Open clicked")
+                    openDlg.open()
                 }
             }
             ToolButton {
                 implicitHeight: parent.height
                 text: "Save"
                 onClicked: {
-                    console.log("Save clicked")
+                    saveDlg.open();
                 }
+
+                enabled: (splitView.imageRSrc != "" ) && (splitView.imageTSrc !="")
 
             }
         }
     }
+    // \ TabBar
 
-
+    // Customizes TabWdiget
     TabBar {
         id:tabBar
         anchors.top: toolBar.bottom
-//        anchors.left: parent.left
-//        anchors.right: parent.right
         width: parent.width * (20/100)
         TabButton {
             text: "Images"
@@ -67,13 +72,64 @@ Rectangle {
         anchors.bottom: parent.bottom
 
         currentIndex: tabBar.currentIndex
-        SplitImageView{
-//            anchors.fill: parent
+
+        SplitImageView {
+            id: splitView
         }
 
         Rectangle {
             id: greenRect
             color: "green"
         }
+    }
+
+    // \ Customizes TabWdiget
+
+    // All Dialogs
+
+    NewInputDialog {
+        id: newAnisotropyDlg
+        onAccepted: {
+            Manager.exeAnisotropy(newAnisotropyDlg.parlBgFile, newAnisotropyDlg.perpBgFile,
+                                  newAnisotropyDlg.parlFile, newAnisotropyDlg.perpFile,
+                                  newAnisotropyDlg.subtractValue)
+        }
+    }
+
+    FileDialog {
+        id: saveDlg
+        title: "Select Save Directory"
+        selectExisting: true
+        selectMultiple: false
+        selectFolder: true
+
+        onAccepted: {
+            Manager.saveAnisotropy(fileUrl, splitView.imageRSrc, splitView.imageTSrc);
+        }
+    }
+
+    FileDialog {
+        id: openDlg
+        title: "Select Save Directory"
+        selectExisting: true
+        selectMultiple: false
+        selectFolder: false
+        nameFilters: ["Anisotropy Metafile (*.ani)"]
+        onAccepted: {
+            Manager.openAnisotropy(fileUrl);
+        }
+    }
+
+
+    // \ All Dialog
+
+    // Connections
+    Connections {
+        target: Manager
+        function onAnisotropyReady(idR, idT){
+            splitView.imageRSrc = idR;
+            splitView.imageTSrc = idT;
+        }
+
     }
 }
