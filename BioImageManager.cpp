@@ -182,8 +182,16 @@ bool BioImageManager::hasImage()
     return (!m_img.isEmpty());
 }
 
+void BioImageManager::updateModel(const QString &rId, const QString &tId)
+{
+    m_model->setRawData(m_img[rId], m_img[tId]);
+}
+
 BioImageManager::BioImageManager(QObject *parent) : QObject(parent)
 {
+    m_model = new DataModel();
+    connect(this, &BioImageManager::anisotropyReady, this, &BioImageManager::updateModel);
+    connect(m_model, &DataModel::modelUpdated, this, &BioImageManager::dataModelUpdated);
 
     float Alpha[2] = {1.0, 1.0};
     cTable = new ColorTable(Alpha, 256);

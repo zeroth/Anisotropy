@@ -24,6 +24,7 @@ Rectangle {
             ToolButton {
                 implicitHeight: parent.height
                 text: "New"
+                iconSource: "qrc:/icons/new.png"
                 onClicked: {
                     newAnisotropyDlg.open()
                 }
@@ -32,6 +33,7 @@ Rectangle {
             ToolButton {
                 implicitHeight: parent.height
                 text: "Open"
+                iconSource: "qrc:/icons/open.png"
                 onClicked: {
                     openDlg.open()
                 }
@@ -39,6 +41,7 @@ Rectangle {
             ToolButton {
                 implicitHeight: parent.height
                 text: "Save"
+                iconSource: "qrc:/icons/save.png"
                 onClicked: {
                     saveDlg.open();
                 }
@@ -77,10 +80,11 @@ Rectangle {
             id: splitView
         }
 
-        Rectangle {
-            id: greenRect
-            color: "green"
+        ChartDisplay {
+            id:chartView
         }
+
+
     }
 
     // \ Customizes TabWdiget

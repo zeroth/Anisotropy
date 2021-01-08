@@ -45,6 +45,7 @@
 #define TIFF_FIELD_PLANARCONFIG 284
 #define TIFF_FIELD_RESOLUTIONUNIT 296
 #define TIFF_FIELD_SAMPLEFORMAT 339
+#define TIFF_FIELD_IMAGEJMETADATA 50839
 
 #include <inttypes.h>
 #include <iostream>

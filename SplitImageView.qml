@@ -1,9 +1,10 @@
 import QtQuick 2.0
+import QtQuick.Controls 1.4
 
 Item {
     property string imageRSrc: ""
     property string imageTSrc: ""
-
+    property real currentZoomLevel: 1.0
     Rectangle {
         id: redRect
         anchors.fill: parent
@@ -21,7 +22,7 @@ Item {
                 id: imageR
                 anchors.fill: parent
                 zoomController.visible: false
-                zoomScale: zoomSlider.value
+                zoomScale: currentZoomLevel
                 imageSrc: imageRSrc
                 controlAlignment: Qt.AlignRight
             }
@@ -39,7 +40,6 @@ Item {
             x: Math.round(parent.width/2)
             y:0
             onXChanged: {
-                console.log(x)
                 if(x< 0)
                     x = 0
                 else if(x > parent.width) {
@@ -50,10 +50,6 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 drag.target: parent
-
-                onPositionChanged: {
-                    console.log(mouse.x, mouse.y)
-                }
             }
         }
 
@@ -72,7 +68,7 @@ Item {
                 id: imageT
                 anchors.fill: parent
                 zoomController.visible: false
-                zoomScale: zoomSlider.value
+                zoomScale: currentZoomLevel
                 imageSrc: imageTSrc
                 controlAlignment: Qt.AlignRight
             }
@@ -83,14 +79,46 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             height: 60
-            ControlSlider {
+            /*ControlSlider {
                 anchors.centerIn: parent
                 id: zoomSlider
                 title: "Zoom"
                 from:0.7
                 to:15.0
                 value: 1.0
+            }*/
+            Row{
+                x: parent.width/2 - childrenRect.width/2
+                y: 10
+                spacing: 10
+                ToolButton {
+                    iconSource: "qrc:/icons/zoom_in.png"
+                    onClicked: {
+                        currentZoomLevel = Math.min(currentZoomLevel+0.5, 20)
+                    }
+                }
+                ToolButton {
+                    iconSource: "qrc:/icons/zoom_out.png"
+                    onClicked: {
+                        currentZoomLevel -= 0.5
+                    }
+                }
+                ToolButton {
+                    iconSource: "qrc:/icons/zoom_reset.png"
+                    onClicked: {
+                        currentZoomLevel = 1.0
+                    }
+                }
+
+                ToolButton {
+                    iconSource: "qrc:/icons/reset.png"
+                    onClicked: {
+                        imageR.updateImageLocation()
+                        imageT.updateImageLocation()
+                    }
+                }
             }
+
         }
 
     }

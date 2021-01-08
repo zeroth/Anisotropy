@@ -16,11 +16,14 @@ Rectangle {
     visible: true
     width: 1200
     height: 800
-    color: "red"
+//    color: "red"
 
     AnisotropyView {
         anchors.fill: parent
     }
+//    ImageFlickArea {
+////        anchors.fill: parent
+//    }
 }
 
 /*ApplicationWindow {

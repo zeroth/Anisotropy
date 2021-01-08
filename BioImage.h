@@ -86,6 +86,7 @@ public:
 
     uint8_t *displayImage(double thresholdMin = 0, double thresholdMax = 0, bool threshold=false);
     float intensityAt(uint32_t x, uint32_t y) const;
+    float intensityAt(uint32_t index) const;
 
     CurrentType dtype();
 

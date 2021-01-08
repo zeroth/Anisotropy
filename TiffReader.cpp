@@ -346,6 +346,11 @@ struct TiffSlice {
             plannerConfiguration = tagData.value[0];
             break;
         }
+        case TIFF_FIELD_IMAGEJMETADATA:{
+            std::cout << "ImageJ metadata tag " << std::endl;
+            tagData.print();
+            break;
+        }
         default: break;
 
         }

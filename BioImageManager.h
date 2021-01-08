@@ -7,6 +7,7 @@
 #include <QJSEngine>
 #include <QHash>
 #include "ColorTable.h"
+#include "DataModel.h"
 
 class BioImageManager : public QObject
 {
@@ -45,12 +46,22 @@ public:
     Q_INVOKABLE QStringList availableColorMaps();
     QVector<QRgb> colorTable(const QString& name);
     Q_INVOKABLE bool hasImage();
+    Q_INVOKABLE DataModel* mode() {return  m_model;}
+    Q_INVOKABLE void setModelBinSize(int val) { m_model->setBinSize(val); }
+    Q_INVOKABLE int modelBinSize() { return  m_model->binSize(); }
+    Q_INVOKABLE float modelYMin() { return  m_model->yMin(); }
+    Q_INVOKABLE float modelYMax() { return  m_model->yMax(); }
+    Q_INVOKABLE int modelBinCount() { return  m_model->totatlNumberOfBins(); }
 
 
 signals:
     void imageLoaded(const QString& id);
     void imageUpdated();
     void anisotropyReady(const QString& rId, const QString& tId);
+    void dataModelUpdated();
+
+private slots:
+    void updateModel(const QString& rId, const QString& tId);
 
 private:
     BioImageManager(QObject *parent = nullptr);
@@ -58,6 +69,7 @@ private:
 private:
     QHash<QString, zeroth::BioImage*> m_img;
     ColorTable* cTable;
+    DataModel* m_model;
 
 };
 

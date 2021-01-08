@@ -237,9 +237,7 @@ struct BioImageData {
         }
     }
 
-
-    float getIntensityAt(uint32_t x, uint32_t y) {
-        uint32_t index = y * width + x;
+    float getIntensityAt(uint32_t index) {
         if(index > imageSize)
             return 0;
         switch (dtype) {
@@ -271,6 +269,11 @@ struct BioImageData {
         }
 
         }
+    }
+
+    float getIntensityAt(uint32_t x, uint32_t y) {
+        uint32_t index = y * width + x;
+        return getIntensityAt(index);
     }
 
     template<typename T>
@@ -504,6 +507,11 @@ uint8_t *BioImage::displayImage(double thresholdMin , double thresholdMax , bool
 float BioImage::intensityAt(uint32_t x, uint32_t y) const
 {
     return d->getIntensityAt(x, y);
+}
+
+float BioImage::intensityAt(uint32_t index) const
+{
+    return d->getIntensityAt(index);
 }
 
 CurrentType BioImage::dtype()

@@ -20,8 +20,8 @@ Item {
         width: image.width
         height: image.height
         color: "transparent"
-//        smooth: true
-//        antialiasing: true
+        smooth: false
+        antialiasing: false
         MouseArea {
             anchors.fill: parent
             drag.target: parent

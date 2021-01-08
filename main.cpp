@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QQuickView>
 #include <QQmlDebuggingEnabler>
+#include "DataModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
     //        qmlRegisterType<Bio2DImageView>("BioImages", 1,0, "BioImage2DViewer");
     qmlRegisterType<Anisotropy>("BioImages", 1,0, "Anisotropy");
     qmlRegisterType<zeroth::Histogram>("BioImages", 1,0, "Histogram");
-
+    qmlRegisterType<DataModel>("BioImages", 1, 0, "DataModel");
 
     /*QQmlApplicationEngine engine;
     engine.addImageProvider("Bi", new BioImageProvider);
